@@ -1,9 +1,10 @@
 import { Elysia, t } from "elysia";
+import { faker } from "@faker-js/faker";
 
 const UsersRequestHeaders = t.Optional(
   t.Object({
     "x-client-id": t.String(),
-  })
+  }),
 );
 
 const PostUsersBody = t.Object({
@@ -18,25 +19,23 @@ const PostUsersResponse = t.Object({
 
 const users = new Elysia().group("/users", (app) =>
   app
-    .get(
-      "/",
-      ({ headers }) => {
-        return {
-          data: [
-            {
-              id: 1,
-              name: "John Doe",
-              ...(headers["x-client-id"] && {
-                "x-client-id": headers["x-client-id"],
-              }),
-            },
-          ],
-        };
-      },
-      {
-        headers: UsersRequestHeaders,
-      }
-    )
+    .get("/", () => {
+      const randomUsers = Array(20)
+        .fill(0)
+        .map((_, i) => ({
+          id: i + 1,
+          name: faker.person.fullName(),
+        }));
+      return {
+        data: [
+          ...randomUsers,
+          {
+            id: randomUsers.length + 1,
+            name: "John Doe",
+          },
+        ],
+      };
+    })
     .post(
       "/",
       ({ body }) => {
@@ -50,8 +49,8 @@ const users = new Elysia().group("/users", (app) =>
         headers: UsersRequestHeaders,
         body: PostUsersBody,
         response: PostUsersResponse,
-      }
-    )
+      },
+    ),
 );
 
 export default users;

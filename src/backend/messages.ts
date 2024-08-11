@@ -1,16 +1,32 @@
+import { faker } from "@faker-js/faker";
 import { Elysia, t } from "elysia";
 
 const messages = new Elysia().group("/messages", (app) =>
   app
-    .get("/", ({ headers }) => {
-      if (headers["x-client-id"]) {
-        console.log("Client ID:", headers["x-client-id"]);
-      }
-
-      return {
-        message: "Hello World",
-      };
-    })
+    .get(
+      "/",
+      () => {
+        const messages = Array(20)
+          .fill(0)
+          .map(() => ({
+            message: faker.lorem.sentences(2, "\n"),
+            user: faker.person.fullName(),
+          }));
+        return {
+          data: messages,
+        };
+      },
+      {
+        response: t.Object({
+          data: t.Array(
+            t.Object({
+              message: t.String(),
+              user: t.String({ optional: true }),
+            }),
+          ),
+        }),
+      },
+    )
     .post(
       "/",
       ({ body }) => {
@@ -26,8 +42,8 @@ const messages = new Elysia().group("/messages", (app) =>
         response: {
           message: t.String(),
         },
-      }
-    )
+      },
+    ),
 );
 
 export default messages;

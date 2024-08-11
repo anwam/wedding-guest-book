@@ -10,38 +10,48 @@ const app = treaty<App>("localhost:4321");
 const { data: messagesData, error: messagesError } =
   await app.api.messages.index.get();
 
-const { data: usersData, error: usersError } = await app.api.users.index.get({
-  headers: {
-    "x-client-id": Math.random().toString(36).substring(7),
-  },
-});
+const { data: usersData, error: usersError } = await app.api.users.index.get();
 ---
 
 <Layout title="Welcome to Astro.">
-  <main class="container mx-auto">
+  <main
+    class="container mx-auto max-w-screen-sm bg-white min-h-full h-auto p-4"
+  >
     <h1>Welcome to Astro</h1>
     {
       (messagesError || usersError) && (
         <p>{messagesError?.value || usersError?.value}</p>
       )
     }
-    {messagesData && <p>{messagesData.message}</p>}
+    {
+      messagesData && (
+        <ul class="flex flex-col gap-y-2">
+          {messagesData.data.map((message) => (
+            <li class="p-2 bg-violet-100 rounded-lg">
+              <p class="whitespace-pre-line">{message.message}</p>
+              <p>
+                From:{" "}
+                <span class="bg-violet-300 text-sm text-violet-800 rounded-lg px-2 py-1">
+                  {message.user}
+                </span>
+              </p>
+            </li>
+          ))}
+        </ul>
+      )
+    }
 
-    <div class="bg-amber-50 rounded-xl text-amber-600 p-4">
+    <div class="bg-rose-50 rounded-xl text-rose-700 p-4 mt-4">
       {
         usersData && (
-          <>
-            <p>welcome</p>
-            <ul>
-              {usersData.data.map((user) => (
-                <li>
-                  <p>
-                    <b>{user.name}</b> : <i>header</i> {user["x-client-id"]}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </>
+          <div class="flex flex-wrap gap-y-2 gap-x-2">
+            <p>Welcome</p>
+            {usersData.data.map((user) => (
+              <p class="bg-rose-200 rounded-md px-2 py-1 text-sm">
+                <b>{user.name}</b>
+              </p>
+            ))}
+          </div>
         )
       }
     </div>
