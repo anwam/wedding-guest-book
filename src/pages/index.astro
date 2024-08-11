@@ -1,26 +1,49 @@
 ---
 // client.ts
-import { treaty } from '@elysiajs/eden'
-import type { App } from './api/[...slugs]'
-import Layout from '../layouts/Layout.astro'
+import { treaty } from "@elysiajs/eden";
+import type { App } from "./api/[...slugs]";
+import Layout from "../layouts/Layout.astro";
 
-const app = treaty<App>('localhost:4321')
+const app = treaty<App>("localhost:4321");
 
 // response type: 'Hi Elysia'
-const { data, error } = await app.api.messages.index.get({
-	headers: {
-		'x-client-id': Math.random().toString(36).substring(7),
-	}
-})
+const { data: messagesData, error: messagesError } =
+  await app.api.messages.index.get();
+
+const { data: usersData, error: usersError } = await app.api.users.index.get({
+  headers: {
+    "x-client-id": Math.random().toString(36).substring(7),
+  },
+});
 ---
 
 <Layout title="Welcome to Astro.">
-	<main class="container mx-auto">
-		<h1>Welcome to Astro</h1>
-		{error && <p>{error.value}</p>}
-		{data &&
-			<p>{data.message}</p>
-		}
+  <main class="container mx-auto">
+    <h1>Welcome to Astro</h1>
+    {
+      (messagesError || usersError) && (
+        <p>{messagesError?.value || usersError?.value}</p>
+      )
+    }
+    {messagesData && <p>{messagesData.message}</p>}
 
-	</main>
+    <div class="bg-amber-50 rounded-xl text-amber-600 p-4">
+      {
+        usersData && (
+          <>
+            <p>welcome</p>
+            <ul>
+              {usersData.data.map((user) => (
+                <li>
+                  <p>
+                    <b>{user.name}</b> : <i>header</i> {user["x-client-id"]}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </>
+        )
+      }
+    </div>
+  </main>
 </Layout>
