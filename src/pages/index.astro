@@ -10,6 +10,9 @@ const app = treaty<App>("localhost:4321");
 const { data: messagesData, error: messagesError } =
   await app.api.messages.index.get();
 
+// traditional we will use fetch to get data
+// like this fetch('http://localhost:4321/api/users')
+// but with treaty we can use app.api.messages.index.get()
 const { data: usersData, error: usersError } = await app.api.users.index.get();
 ---
 
